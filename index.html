@@ -1,179 +1,228 @@
 <!doctype html>
 <html lang="pt-BR">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#143c3b">
-  <meta name="description" content="Simulação didática da dinâmica entre reprodução sexuada, reprodução assexuada e parasitas.">
-  <title>Reprodução sexuada vs. assexuada — simulação</title>
-  <link rel="stylesheet" href="styles.css">
-  <script src="script.js" defer></script>
-</head>
-<body>
-  <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#143c3b" />
+    <meta name="description" content="Simulação interativa do modelo hospedeiro-parasita de Hamilton, Axelrod e Tanese (1990)." />
+    <meta property="og:title" content="Rainha Vermelha — Hamilton et al. (1990)" />
+    <meta property="og:description" content="Execute no navegador a coevolução entre hospedeiros sexuais, clones e parasitas." />
+    <meta property="og:image" content="og.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <title>Corrida da Rainha Vermelha — Hamilton et al. (1990)</title>
+    <link rel="stylesheet" href="styles.css?v=6" />
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="#inicio" aria-label="Ir ao início">
+        <span class="brand-mark" aria-hidden="true">S×A</span>
+        <span><b>Coevolução</b><small>hospedeiros &amp; parasitas</small></span>
+      </a>
+      <nav aria-label="Navegação principal">
+        <a href="#laboratorio">Simulação</a>
+        <a href="#modelo">Modelo</a>
+        <a href="#leitura">Como ler</a>
+      </nav>
+    </header>
 
-  <header class="site-header">
-    <div class="brand">
-      <span class="brand-mark" aria-hidden="true">S×A</span>
-      <span><strong>Coevolução</strong><small>hospedeiros & parasitas</small></span>
-    </div>
-    <nav class="tabs" aria-label="Seções">
-      <button class="tab active" type="button" data-tab="simulacao" aria-selected="true">Simulação</button>
-      <button class="tab" type="button" data-tab="modelo" aria-selected="false">Sobre o modelo</button>
-    </nav>
-  </header>
+    <main>
+      <section class="hero" id="inicio">
+        <div class="hero-copy">
+          <p class="eyebrow">Modelo hospedeiro–parasita</p>
+          <h1>Quando o sexo compensa seu custo?</h1>
+          <p class="lede">Acompanhe populações haploides sob seleção, mutação e recombinação. Ajuste os parâmetros e observe a corrida evolutiva ano após ano.</p>
+        </div>
+        <div class="hero-orbit" aria-label="Representação conceitual da perseguição entre hospedeiros e parasitas">
+          <div class="orbit orbit-a"><span>00</span><span>11</span><span>01</span></div>
+          <div class="orbit orbit-b"><i></i><i></i><i></i><i></i></div>
+          <div class="core"><strong>2×</strong><small>custo do sexo</small></div>
+        </div>
+      </section>
 
-  <main id="conteudo">
-    <section class="tab-panel active" id="simulacao" aria-labelledby="titulo-simulacao">
-      <div class="intro">
-        <p class="eyebrow">MODELO HOSPEDEIRO–PARASITA</p>
-        <h1 id="titulo-simulacao">Quando o sexo compensa seu custo?</h1>
-        <p>Acompanhe populações haploides sob seleção, mutação e recombinação. Ajuste os parâmetros e observe a corrida evolutiva geração após geração.</p>
-      </div>
+      <section class="lab" id="laboratorio">
+        <div class="section-heading">
+          <div><p class="eyebrow">Experimento numérico</p><h2>Monte a corrida</h2></div>
+        </div>
 
-      <div class="app-layout">
-        <aside class="controls" aria-label="Parâmetros da simulação">
-          <div class="controls-heading">
-            <div>
-              <p class="eyebrow">CONFIGURAÇÃO</p>
-              <h2>Parâmetros</h2>
+        <div class="lab-grid">
+          <aside class="controls" aria-label="Parâmetros da simulação">
+            <h3 class="group-title">Tempo</h3>
+            <div class="control-group">
+              <label for="graceYears"><span>Período assexuado <button class="info" data-tip="Anos de coevolução antes de introduzir o alelo de reprodução sexuada em metade dos hospedeiros." aria-label="Ajuda sobre período assexuado">?</button></span></label>
+              <input id="graceYears" type="number" min="0" max="500" value="70" />
             </div>
-            <button class="reset-button" id="resetDefaults" type="button">Restaurar</button>
+            <div class="control-group">
+              <label for="runYears"><span>Anos após introdução do sexo</span></label>
+              <input id="runYears" type="number" min="50" max="2000" value="400" />
+            </div>
+
+            <h3 class="group-title">Populações e genoma</h3>
+            <div class="control-group">
+              <label for="hostPopulation"><span>Hospedeiros, H</span></label>
+              <input id="hostPopulation" type="number" min="20" max="1000" step="10" value="200" />
+            </div>
+            <div class="control-group">
+              <label for="parasitePopulation"><span>Parasitas por espécie, P</span></label>
+              <input id="parasitePopulation" type="number" min="20" max="1000" step="10" value="200" />
+            </div>
+            <div class="control-group">
+              <label for="parasiteSpecies"><span>Espécies de parasitas <button class="info" data-tip="n populações assexuadas independentes; cada hospedeiro encontra uma de cada espécie por ano." aria-label="Ajuda sobre espécies de parasitas">?</button></span><output id="parasiteSpeciesOut">12</output></label>
+              <input id="parasiteSpecies" type="range" min="2" max="12" step="1" value="12" />
+            </div>
+            <div class="control-group">
+              <label for="lociPerSpecies"><span>Loci por espécie <button class="info" data-tip="k loci binários no parasita e no setor correspondente do hospedeiro." aria-label="Ajuda sobre loci">?</button></span><output id="lociPerSpeciesOut">1</output></label>
+              <input id="lociPerSpecies" type="range" min="1" max="7" step="1" value="1" />
+            </div>
+
+            <h3 class="group-title">Seleção e mortalidade</h3>
+            <div class="control-group">
+              <label for="hostMortality"><span>Mortalidade dos hospedeiros</span><output id="hostMortalityOut">0,071</output></label>
+              <input id="hostMortality" type="range" min="0.001" max="0.5" step="0.001" value="0.0714285714" />
+            </div>
+            <div class="control-group">
+              <label for="parasiteMortality"><span>Mortalidade dos parasitas</span><output id="parasiteMortalityOut">0,909</output></label>
+              <input id="parasiteMortality" type="range" min="0.1" max="0.99" step="0.001" value="0.909" />
+            </div>
+
+            <h3 class="group-title">Mutação e recombinação</h3>
+            <div class="control-group">
+              <label for="recombination"><span>Recombinação, r <button class="info" data-tip="Probabilidade de trocar o cromossomo parental entre cada par de loci adjacentes." aria-label="Ajuda sobre recombinação">?</button></span><output id="recombinationOut">0,30</output></label>
+              <input id="recombination" type="range" min="0" max="0.5" step="0.05" value="0.3" />
+            </div>
+            <div class="control-group">
+              <label for="hostMutation"><span>Mutação do hospedeiro</span></label>
+              <select id="hostMutation">
+                <option value="0.00001">0,00001 (Figura 2)</option>
+                <option value="0.0001" selected>0,0001 (baixa)</option>
+                <option value="0.01">0,01 (alta)</option>
+              </select>
+            </div>
+            <div class="control-group">
+              <label for="parasiteMutation"><span>Mutação dos parasitas</span></label>
+              <select id="parasiteMutation">
+                <option value="0.0001">0,0001</option>
+                <option value="0.001">0,001</option>
+                <option value="0.005">0,005</option>
+                <option value="0.01" selected>0,01 (artigo)</option>
+              </select>
+            </div>
+            <details>
+              <summary>Ajustes avançados</summary>
+              <div class="advanced">
+                <label for="environmentalSD"><span>Ruído ambiental (DP)</span><input id="environmentalSD" type="number" min="0" max="5" step="0.1" value="0" /></label>
+              </div>
+            </details>
+
+            <div class="paper-defaults">
+              Padrão do artigo: H = P = 200 · 70 anos assexuados · d<sub>H</sub> = 1/14 · d<sub>P</sub> = 0,909
+            </div>
+
+            <div class="run-actions">
+              <button id="runButton" class="run-button"><span class="run-dot"></span>Executar simulação</button>
+              <button id="resetButton" class="icon-button" aria-label="Reiniciar simulação">↻</button>
+            </div>
+            <div class="progress-wrap" aria-live="polite">
+              <div class="progress-label"><span id="statusText">Pronto para correr</span><span id="progressText">0%</span></div>
+              <div class="progress"><i id="progressBar"></i></div>
+            </div>
+          </aside>
+
+          <section class="results" aria-label="Resultados da simulação">
+            <div class="metric-grid">
+              <article class="metric accent"><span>Sexo nos últimos 50 anos</span><strong id="meanSex">—</strong><small id="outcomeLabel">execute para observar</small></article>
+              <article class="metric"><span>Sexo ao final</span><strong id="finalSex">—</strong><small>frequência do alelo sexual</small></article>
+            </div>
+
+            <article class="chart-card main-chart">
+              <div class="chart-heading"><div><span class="chart-kicker">Dinâmica populacional</span><h3>Modos reprodutivos</h3></div><div class="legend"><span><i class="dot sexual-dot"></i>Sexuais</span><span><i class="dot asexual-dot"></i>Assexuais</span></div></div>
+              <canvas id="sexChart" width="900" height="390" aria-label="Quantidade de hospedeiros sexuais e assexuais por ano"></canvas>
+              <div class="chart-note"><span>Número de indivíduos</span><span>Ano 0: introdução do alelo sexual</span></div>
+            </article>
+
+            <article class="chart-card fitness-card">
+              <div class="chart-heading"><div><span class="chart-kicker">Desempenho relativo</span><h3>Fitness médio</h3></div><div class="legend"><span><i class="dot sexual-dot"></i>Sexuais</span><span><i class="dot asexual-dot"></i>Assexuais</span><span><i class="dot parasite-dot"></i>Parasitas</span></div></div>
+              <canvas id="fitnessChart" width="900" height="350" aria-label="Fitness relativo médio de sexuais, assexuais e parasitas"></canvas>
+              <div class="chart-note"><span>Escores normalizados entre 0 e 1</span><span>Seleção branda por ordenação</span></div>
+            </article>
+
+            <div class="small-charts">
+              <article class="chart-card"><div class="chart-heading"><div><span class="chart-kicker">Variação genética</span><h3>Frequência do alelo 1 em três loci</h3></div><div class="legend"><span><i class="dot locus-one"></i>L1</span><span><i class="dot locus-two"></i>L2</span><span><i class="dot locus-three"></i>L3</span></div></div><canvas id="alleleChart" width="440" height="260" aria-label="Frequência do alelo 1 nos três primeiros loci de resistência"></canvas></article>
+              <article class="chart-card"><div class="chart-heading"><div><span class="chart-kicker">População atual</span><h3>Grade de hospedeiros</h3></div><div class="legend"><span><i class="dot sexual-dot"></i>Sexual</span><span><i class="dot asexual-dot"></i>Assexual</span></div></div><canvas id="hostGrid" width="440" height="260" aria-label="Grade mostrando o modo reprodutivo de cada hospedeiro"></canvas></article>
+            </div>
+
+            <article class="replicate-card">
+              <div><span class="chart-kicker">Dados brutos</span><h3>Execução atual</h3></div>
+              <div id="runSummary" class="replicate-list"><p class="empty-state">Execute a simulação para gerar os dados.</p></div>
+              <button id="downloadButton" class="download-button" disabled>Baixar dados CSV ↓</button>
+            </article>
+          </section>
+        </div>
+      </section>
+
+      <section class="model" id="modelo">
+        <div class="section-heading light"><div><p class="eyebrow">Fidelidade ao artigo</p><h2>O mecanismo, passo a passo</h2></div><p>Não é uma animação ilustrativa: cada ano executa a dinâmica populacional descrita por Hamilton, Axelrod e Tanese.</p></div>
+        <div class="steps">
+          <article><b>01</b><h3>Encontrar</h3><p>Cada hospedeiro recebe um parasita de cada espécie. O escore é o número de alelos binários coincidentes.</p></article>
+          <article><b>02</b><h3>Selecionar</h3><p>Os 14 hospedeiros menos resistentes morrem. Em cada espécie, 182 parasitas são substituídos; os mais coincidentes deixam mais descendentes.</p></article>
+          <article><b>03</b><h3>Reproduzir</h3><p>Clones copiam um genoma inteiro. Hermafroditas sexuais recombinam dois genomas, mas cada par produz como uma única unidade — o custo duplo.</p></article>
+          <article><b>04</b><h3>Perseguir</h3><p>Parasitas se aproximam dos genótipos frequentes; o sexo recompõe variantes raras. A corrida recomeça no ano seguinte.</p></article>
+        </div>
+        <div class="equation-band">
+          <div><span>Escore do parasita</span><strong>S<sub>p</sub> = Σ correspondências</strong></div>
+          <div class="arrow" aria-hidden="true">→</div>
+          <div><span>Escore do hospedeiro</span><strong>S = nk − ΣS<sub>p</sub></strong></div>
+          <div class="arrow" aria-hidden="true">→</div>
+          <div><span>Seleção</span><strong>ordenação + truncamento</strong></div>
+        </div>
+      </section>
+
+      <section class="reading" id="leitura">
+        <div class="reading-copy">
+          <p class="eyebrow">Como ler</p>
+          <h2>Explicação Geral do Modelo</h2>
+        </div>
+        <div class="reading-body">
+          <p>Baseado no artigo de Hamilton et al. (1990). Simula a dinâmica de reprodução sexual e assexual em uma população de hospedeiros que interage com diversas espécies de parasitas. Cada hospedeiro possui um genótipo haploide que inclui um gene determinante do modo reprodutivo (sexual ou assexual) e blocos de loci responsáveis pela defesa contra os parasitas. Os parasitas, por sua vez, possuem genótipos haploides que interagem com os loci de defesa dos hospedeiros.</p>
+          <p>A cada geração, cada hospedeiro é pareado ao acaso com um indivíduo de cada espécie de parasita. O fitness do hospedeiro é calculado pela capacidade de defesa contra esses parasitas. Da mesma forma, os parasitas são pareados com hospedeiros, e seu fitness é medido pela capacidade de infectá-los.</p>
+          <p>Após a seleção dos indivíduos com pior desempenho, as populações são repovoadas a partir dos sobreviventes. Indivíduos que se reproduzem sexualmente têm metade da chance de se reproduzir em comparação aos assexuados (devido ao custo duplo da reprodução sexual).</p>
+
+          <div class="concept-grid">
+            <article><h3>Hospedeiros</h3><p>Indivíduos cujo genótipo determina a capacidade de defesa contra os parasitas. O primeiro elemento do vetor é o gene de sexo, determinando a reprodução sexual (valor 1) ou assexual (valor 0).</p></article>
+            <article><h3>Parasitas</h3><p>Cada espécie possui sua própria população e genótipos que interagem com os loci de defesa dos hospedeiros.</p></article>
           </div>
 
-          <fieldset>
-            <legend>Tempo</legend>
-            <label>Período assexuado <span>gerações</span>
-              <input id="grace_period" type="number" value="200" min="0" max="100" step="1">
-            </label>
-            <label>Gerações após o período <span>n_gen</span>
-              <input id="n_gen" type="number" value="400" min="10" max="1000" step="10">
-            </label>
-          </fieldset>
+          <p class="reading-citation">Hamilton, W. D., Axelrod, R., &amp; Tanese, R. (1990). Sexual reproduction as an adaptation to resist parasites (a review). <em>Proceedings of the National Academy of Sciences, 87</em>(9), 3566–3573.</p>
 
-          <fieldset>
-            <legend>Populações e genoma</legend>
-            <label>Hospedeiros <span>H</span>
-              <input id="H" type="number" value="200" min="50" max="1000" step="10">
-            </label>
-            <label>Espécies de parasitas <span>n_paras</span>
-              <input id="n_paras" type="number" value="12" min="1" max="50" step="1">
-            </label>
-            <label>Loci de defesa por parasita <span>k</span>
-              <input id="k" type="number" value="1" min="1" max="10" step="1">
-            </label>
-            <label>Parasitas por espécie <span>P</span>
-              <input id="P" type="number" value="200" min="50" max="1000" step="10">
-            </label>
-          </fieldset>
+          <h3 class="reading-title">Parâmetros do Modelo</h3>
+          <dl class="parameter-list">
+            <div><dt>H</dt><dd>Tamanho da População de Hospedeiros.</dd></div>
+            <div><dt>n_paras</dt><dd>Número de Espécies de Parasitas.</dd></div>
+            <div><dt>k</dt><dd>Número de Loci de Defesa por Parasita.</dd></div>
+            <div><dt>P</dt><dd>Tamanho da População de Cada Parasita.</dd></div>
+            <div><dt>d</dt><dd>Taxa de Mortalidade dos Hospedeiros.</dd></div>
+            <div><dt>dp</dt><dd>Taxa de Mortalidade dos Parasitas.</dd></div>
+            <div><dt>m_host</dt><dd>Taxa de Mutação dos Hospedeiros.</dd></div>
+            <div><dt>m_paras</dt><dd>Taxa de Mutação dos Parasitas.</dd></div>
+            <div><dt>r</dt><dd>Taxa de Recombinação.</dd></div>
+            <div><dt>n_gen</dt><dd>Número de Gerações (após o Período Assexuado).</dd></div>
+            <div><dt>grace_period</dt><dd>Período Assexuado (gerações).</dd></div>
+          </dl>
 
-          <fieldset>
-            <legend>Seleção e mortalidade</legend>
-            <label class="range-label">Mortalidade dos hospedeiros <output for="d" id="dValue">0,07</output>
-              <input id="d" type="range" value="0.07" min="0.01" max="1" step="0.01">
-            </label>
-            <label class="range-label">Mortalidade dos parasitas <output for="dp" id="dpValue">0,90</output>
-              <input id="dp" type="range" value="0.9" min="0.01" max="1" step="0.01">
-            </label>
-          </fieldset>
+          <h3 class="reading-title">Objetivos do Modelo</h3>
+          <p>A simulação busca explorar como a reprodução sexual pode aumentar a variabilidade genética e, consequentemente, a capacidade de adaptação dos hospedeiros frente à pressão dos parasitas. Em contrapartida, a reprodução assexual, embora mais eficiente em termos numéricos, pode reduzir a variabilidade e, assim, a capacidade de resposta a desafios ambientais.</p>
+        </div>
+      </section>
 
-          <fieldset>
-            <legend>Mutação e recombinação</legend>
-            <label class="range-label">Mutação dos hospedeiros <output for="m_host" id="m_hostValue">0,0001</output>
-              <input id="m_host" type="range" value="0.0001" min="0" max="0.05" step="0.0001">
-            </label>
-            <label class="range-label">Mutação dos parasitas <output for="m_paras" id="m_parasValue">0,0001</output>
-              <input id="m_paras" type="range" value="0.0001" min="0" max="0.05" step="0.0001">
-            </label>
-            <label class="range-label">Recombinação <output for="r" id="rValue">0,50</output>
-              <input id="r" type="range" value="0.5" min="0" max="0.5" step="0.01">
-            </label>
-          </fieldset>
+      <section class="method-note">
+        <h2>Notas de implementação</h2>
+        <p>A simulação segue os parâmetros e regras publicados. Onde o artigo remete à documentação original do programa, não incluída no PDF, adotamos escolhas explícitas e neutras: empates são aleatórios; com H = P, os parasitas são permutados um-a-um entre os hospedeiros; com tamanhos diferentes, os encontros são distribuídos de modo equilibrado e o escore do parasita é a média de seus encontros; sobreviventes permanecem e as vagas são preenchidas por descendentes; unidades reprodutivas assexuadas têm peso 1 e pares sexuais peso 1/2 por indivíduo.</p>
+        <p class="citation">Fonte: Hamilton, W. D.; Axelrod, R.; Tanese, R. (1990). “Sexual reproduction as an adaptation to resist parasites (A Review)”. <em>Proceedings of the National Academy of Sciences</em>, 87, 3566–3573.</p>
+      </section>
+    </main>
 
-          <div class="actions">
-            <button class="primary-button" id="start" type="button"><span aria-hidden="true">▶</span> Iniciar simulação</button>
-            <button class="secondary-button" id="downloadData" type="button" disabled>Baixar dados (.csv)</button>
-          </div>
-        </aside>
-
-        <section class="results" aria-label="Resultados da simulação">
-          <div class="status-card" aria-live="polite">
-            <div>
-              <span class="status-dot" id="statusDot"></span>
-              <p id="status">Pronto para iniciar</p>
-            </div>
-            <strong id="progressText">0 / 0 gerações</strong>
-            <div class="progress-track" aria-hidden="true"><i id="progressBar"></i></div>
-          </div>
-
-          <article class="chart-card">
-            <div class="card-heading">
-              <div><p class="eyebrow">DINÂMICA POPULACIONAL</p><h2>Modos reprodutivos</h2></div>
-              <div class="legend"><span><i class="blue"></i>Sexuais</span><span><i class="coral"></i>Assexuais</span></div>
-            </div>
-            <div class="canvas-wrap"><canvas id="simChartCanvas" aria-label="Gráfico da quantidade de hospedeiros sexuais e assexuais por geração"></canvas></div>
-          </article>
-
-          <article class="chart-card">
-            <div class="card-heading">
-              <div><p class="eyebrow">DESEMPENHO RELATIVO</p><h2>Fitness médio</h2></div>
-              <div class="legend"><span><i class="blue"></i>Sexuais</span><span><i class="coral"></i>Assexuais</span><span><i class="green"></i>Parasitas</span></div>
-            </div>
-            <div class="canvas-wrap"><canvas id="fitnessChartCanvas" aria-label="Gráfico do fitness relativo médio por geração"></canvas></div>
-          </article>
-
-          <article class="chart-card host-card">
-            <div class="card-heading">
-              <div><p class="eyebrow">POPULAÇÃO ATUAL</p><h2>Grade de hospedeiros</h2></div>
-              <div class="legend"><span><i class="blue"></i>Sexual</span><span><i class="coral"></i>Assexual</span></div>
-            </div>
-            <div class="canvas-wrap grid-wrap"><canvas id="hostGridCanvas" aria-label="Grade mostrando o modo reprodutivo de cada hospedeiro"></canvas></div>
-          </article>
-        </section>
-      </div>
-    </section>
-
-    <section class="tab-panel about" id="modelo" aria-labelledby="titulo-modelo" hidden>
-      <div class="about-hero">
-        <p class="eyebrow">SOBRE O MODELO</p>
-        <h1 id="titulo-modelo">Uma corrida evolutiva entre defesa e infecção.</h1>
-        <p>Baseado em Hamilton, Axelrod & Tanese (1990), o modelo simula a dinâmica de reprodução sexual e assexual em uma população de hospedeiros que interage com diversas espécies de parasitas.</p>
-      </div>
-      <div class="about-grid">
-        <article>
-          <span>01</span><h2>Genótipos</h2>
-          <p>Cada hospedeiro possui um genótipo haploide. O primeiro locus determina reprodução sexual (1) ou assexual (0); os demais formam blocos de defesa. Cada espécie de parasita tem sua própria população de genótipos haploides.</p>
-        </article>
-        <article>
-          <span>02</span><h2>Encontro</h2>
-          <p>A cada geração, cada hospedeiro é pareado ao acaso com um indivíduo de cada espécie de parasita. A correspondência entre alelos determina os escores usados na seleção.</p>
-        </article>
-        <article>
-          <span>03</span><h2>Seleção</h2>
-          <p>Indivíduos com pior desempenho são removidos. As populações são recompostas a partir dos sobreviventes, com mutação nos descendentes e recombinação entre os sexuais.</p>
-        </article>
-        <article>
-          <span>04</span><h2>Custo do sexo</h2>
-          <p>Hospedeiros sexuais têm metade do peso reprodutivo dos assexuais. A simulação testa quando a variabilidade gerada pelo sexo pode compensar esse custo duplo.</p>
-        </article>
-      </div>
-      <div class="parameter-guide">
-        <h2>Parâmetros do modelo</h2>
-        <dl>
-          <div><dt>H</dt><dd>tamanho da população de hospedeiros</dd></div>
-          <div><dt>n_paras</dt><dd>número de espécies de parasitas</dd></div>
-          <div><dt>k</dt><dd>loci de defesa por parasita</dd></div>
-          <div><dt>P</dt><dd>população de cada espécie de parasita</dd></div>
-          <div><dt>d / dp</dt><dd>mortalidade de hospedeiros / parasitas</dd></div>
-          <div><dt>m_host / m_paras</dt><dd>mutação de hospedeiros / parasitas</dd></div>
-          <div><dt>r</dt><dd>taxa de recombinação</dd></div>
-          <div><dt>n_gen</dt><dd>gerações após o período assexuado</dd></div>
-        </dl>
-      </div>
-      <p class="citation">Hamilton, W. D., Axelrod, R., & Tanese, R. (1990). <em>Sexual reproduction as an adaptation to resist parasites (a review)</em>. Proceedings of the National Academy of Sciences, 87(9), 3566–3573.</p>
-    </section>
-  </main>
-
-  <footer><span>Simulação didática · Zoologia de Invertebrados</span><span>Processamento inteiramente no navegador</span></footer>
-</body>
+    <footer><span>Modelo educacional · execução inteiramente no navegador</span><a href="#inicio">Voltar ao topo ↑</a></footer>
+    <div id="tooltip" class="tooltip" role="tooltip"></div>
+    <script src="engine.js?v=6"></script>
+    <script src="ui.js?v=5"></script>
+  </body>
 </html>
